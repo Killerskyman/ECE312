@@ -10,7 +10,7 @@
 #include <cstring>
 #include <malloc.h>
 
-#define RHP_COMMID 312
+#define RHP_COMMID 0x312
 #define RHP_HEADERLEN 7 //1 for type, 2 for commID, 2 for length, 2 for checksum
 
 
@@ -28,7 +28,7 @@ extern void RHPstructFill(RHP_payloadStruct* rhpmsg, char* msg);
 
 extern int RHPunpack(RHP_payloadStruct* recvPacket, uint8_t* udprecv);
 
-extern void RHPpack(RHP_payloadStruct* sendPacket, uint8_t* udpSend);
+extern int RHPpack(RHP_payloadStruct* sendPacket, uint8_t* udpSendTemp);
 
 extern void calcChecksum(const uint8_t* data, uint16_t dataLen, uint16_t* calcChecksum);
 

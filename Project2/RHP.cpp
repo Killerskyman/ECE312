@@ -7,8 +7,9 @@
 void RHPstructFill(RHP_payloadStruct* rhpmsg, char* msg){
     rhpmsg->type = COMMAND;
     rhpmsg->commID = RHP_COMMID;
-    rhpmsg->length = strlen(msg);
-    memcpy(rhpmsg->payload, msg, strlen(msg));
+    rhpmsg->length = strlen(msg)+1;
+    rhpmsg->payload = static_cast<char *>(malloc(sizeof(msg)));
+    memcpy(rhpmsg->payload, msg, strlen(msg)+1);
     rhpmsg->checkSum = 0;
     printf("RHP: structure filled\n");
 }
@@ -27,9 +28,9 @@ int RHPunpack(RHP_payloadStruct* recvPacket, uint8_t* udprecv) {
     printf("RHP: type: %d\n", recvPacket->type);
     printf("RHP: CommID: %d\n", recvPacket->commID);
     printf("RHP: length: %d\n", recvPacket->length);
-    printf("RHP: chucksum received: %d\n", recvPacket->checkSum);
-    printf("RHP: chucksum calculated: %d\n", checksum);
-    if(~checksum == 0){
+    printf("RHP: chucksum received: %x\n", recvPacket->checkSum);
+    printf("RHP: chucksum calculated: %x\n", checksum);
+    if(checksum == 0){
         printf("RHP: checksum valid\n");
         return 0;
     }
@@ -39,28 +40,31 @@ int RHPunpack(RHP_payloadStruct* recvPacket, uint8_t* udprecv) {
     }
 }
 
-void RHPpack(RHP_payloadStruct* sendPacket, uint8_t* udpSend) {
+int RHPpack(RHP_payloadStruct* sendPacket, uint8_t* udpSend) {
     uint16_t relPayLen = (sendPacket->length % 2) ? sendPacket->length : 1+sendPacket->length;
     int msgLen = relPayLen+RHP_HEADERLEN;
-    udpSend = (uint8_t*) malloc(msgLen);
+    uint8_t* udpSendTemp = (uint8_t*) malloc(msgLen);
     uint16_t checksum = 0;
 
-    udpSend[0] = sendPacket->type;
-    udpSend[1] = sendPacket->commID & 0x00ff;
-    udpSend[2] = (sendPacket->commID & 0xff00) >> 8;
-    udpSend[3] = sendPacket->length & 0x00ff;
-    udpSend[4] = (sendPacket->length & 0xff00) >> 8;
-    memcpy(&udpSend[5], sendPacket->payload, sendPacket->length);
-    calcChecksum(udpSend, msgLen, &checksum);
+    udpSendTemp[0] = sendPacket->type;
+    udpSendTemp[1] = sendPacket->commID & 0x00ff;
+    udpSendTemp[2] = (sendPacket->commID & 0xff00) >> 8;
+    udpSendTemp[3] = sendPacket->length & 0x00ff;
+    udpSendTemp[4] = (sendPacket->length & 0xff00) >> 8;
+    memcpy(&udpSendTemp[5], sendPacket->payload, sendPacket->length);
+    calcChecksum(udpSendTemp, msgLen, &checksum);
     sendPacket->checkSum = checksum;
-    udpSend[msgLen-2] = checksum & 0x00ff;
-    udpSend[msgLen-1] = (checksum & 0xff00) >> 8;
+    udpSendTemp[msgLen - 2] = checksum & 0x00ff;
+    udpSendTemp[msgLen - 1] = (checksum & 0xff00) >> 8;
+
+    memcpy(udpSend, udpSendTemp, msgLen);
 
     printf("RHP: udp data packed as: ");
     for(int temp = 0; temp < msgLen; temp++){
-        printf("%x ",udpSend[temp]);
+        printf("%x ", udpSendTemp[temp]);
     }
     printf("\n");
+    return msgLen;
 }
 
 void calcChecksum(const uint8_t* data, uint16_t dataLen, uint16_t* calcsum) {

@@ -16,6 +16,8 @@
 
 extern int setupUDP(struct sockaddr_in* server, int* clientSock, char* serverAddr, int port);
 
-extern int sendUDPmsg(int clientSock, struct sockaddr_in* pserver, char* sendMsg, char* recvMsg);
+extern int sendUDPmsg(int clientSock, struct sockaddr_in* pserver, char* sendMsg, int sendmsglen, char* recvMsg);
+
+extern void closeUDP(int clientSock);
 
 #endif //PROJECT2_UDPCLIENT_H

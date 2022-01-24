@@ -15,13 +15,16 @@ void sendRHPcont(char* msg, struct sockaddr_in* pserver, int clientsock){
     struct RHP_payloadStruct sendRHP, recvRHP;
     uint8_t sendMsg[BUFSIZE], recvMsg[BUFSIZE];
 
+    memset(&sendRHP, 0, sizeof(sendRHP));
+    memset(&recvRHP, 0, sizeof(recvRHP));
     printf("RHP: sending RHP control message to server %s on port %d: \"%s\"\n", SERVER, PORT, msg);
     RHPstructFill(&sendRHP, msg);
-    RHPpack(&sendRHP, sendMsg);
+    int msglen = RHPpack(&sendRHP, sendMsg);
     int checksumValid = 1;
     int i = 0;
     while(checksumValid != 0 && i < 10){
-        if(sendUDPmsg(clientsock, pserver, (char *)(sendMsg), (char *)(recvMsg)) != 0){
+        i++;
+        if(sendUDPmsg(clientsock, pserver, (char *)(sendMsg), msglen,(char *)(recvMsg)) != 0){
             continue;
         }
         checksumValid = RHPunpack(&recvRHP, recvMsg);
@@ -38,4 +41,5 @@ int main(){
 
     sendRHPcont(MSG1, &serverAddr, clientSock);
     sendRHPcont(MSG2, &serverAddr, clientSock);
+    closeUDP(clientSock);
 }

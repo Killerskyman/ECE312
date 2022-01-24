@@ -39,9 +39,10 @@ int setupUDP(struct sockaddr_in* server, int* clientSock, char* serverAddr, int 
     return 0;
 }
 
-int sendUDPmsg(int clientSock, struct sockaddr_in* pserver, char* sendMsg, char* recvMsg) {
+int sendUDPmsg(int clientSock, struct sockaddr_in* pserver, char* sendMsg, int sendmsglen, char* recvMsg) {
+
     /* send a message to the server */
-    if (sendto(clientSock, sendMsg, strlen(sendMsg), 0,(struct sockaddr *) pserver, sizeof(*pserver)) < 0) {
+    if (sendto(clientSock, sendMsg, sendmsglen, MSG_CONFIRM,(struct sockaddr *) pserver, sizeof(*pserver)) < 0) {
         perror("sendto failed");
         return -1;
     }
@@ -49,8 +50,11 @@ int sendUDPmsg(int clientSock, struct sockaddr_in* pserver, char* sendMsg, char*
     /* Receive message from server */
     recvfrom(clientSock, recvMsg, BUFSIZE, 0, NULL, NULL);
 
-    printf("Received from server: %s\n", recvMsg);
+    printf("Received from server\n");
 
-    close(clientSock);
     return 0;
+}
+
+void closeUDP(int clientSock){
+    close(clientSock);
 }
