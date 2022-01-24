@@ -5,7 +5,7 @@
 
 int setupUDP(struct sockaddr_in* server, int* clientSock, char* serverAddr, int port) {
 
-    struct sockaddr_in* client = (struct sockaddr_in*) malloc(sizeof(*client));
+    struct sockaddr_in client;
 
     /*Create UDP socket*/
     if ((*clientSock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -20,12 +20,12 @@ int setupUDP(struct sockaddr_in* server, int* clientSock, char* serverAddr, int 
      * INADDR_ANY is the IP address and 0 is the port (allow OS to select port)
      * htonl converts a long integer (e.g. address) to a network representation
      * htons converts a short integer (e.g. port) to a network representation */
-    memset((char *) client, 0, sizeof(*client));
-    client->sin_family = AF_INET;
-    client->sin_addr.s_addr = htonl(INADDR_ANY);
-    client->sin_port = htons(0);
+    memset((char *) &client, 0, sizeof(client));
+    client.sin_family = AF_INET;
+    client.sin_addr.s_addr = htonl(INADDR_ANY);
+    client.sin_port = htons(0);
 
-    if (bind(*clientSock, reinterpret_cast<const sockaddr *>(client), sizeof(*client)) < 0) {
+    if (bind(*clientSock, (const sockaddr *)(&client), sizeof(client)) < 0) {
         perror("bind failed");
         return -1;
     }

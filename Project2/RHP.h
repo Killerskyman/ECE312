@@ -2,52 +2,34 @@
 // Created by skillet on 21/01/2022.
 //
 
+
 #ifndef PROJECT2_RHP_H
 #define PROJECT2_RHP_H
 
-#endif //PROJECT2_RHP_H
+#include <cstdint>
+#include <cstring>
+#include <malloc.h>
+
+#define RHP_COMMID 312
+#define RHP_HEADERLEN 7 //1 for type, 2 for commID, 2 for length, 2 for checksum
 
 
-/*
- *
- !!!!! This struct has a fatal flaw
- !!!!! I don't know the best way to include the 
- !!!!! buffer if it's needed and exclude when not
- * 
-*/
+enum RHP_TYPE{RESERVED = 0, COMMAND = 1, RHMP = 2};
+
 struct RHP_payloadStruct {
-    __UINT8_TYPE__ type;
-    __UINT16_TYPE__ commID;
-    __UINT16_TYPE__ length;
-    char* payload; 
-    __UINT8_TYPE__* buffer;
-    __UINT16_TYPE__ checkSum; 
+    uint8_t type;
+    uint16_t commID;
+    uint16_t length;
+    char* payload;
+    uint16_t checkSum;
 };
 
-/* function: unpackPayload
- *
- * arguments: RHP_payloadStruct givenPacket
- * 
- * This function extracts the payload 
- * inside a UDP packet the program has recieved
- * 
- !!!!! I don't know what the best way to return the value is
- !!!!! Should I pass the payload by reference and store it in the function
- !!!!! or should I have it be the return value?
- !!!!! and what type will the payload be? String?
- * 
-*/
-void unpackPayload(RHP_payloadStruct givenPacket);
+extern void RHPstructFill(RHP_payloadStruct* rhpmsg, char* msg);
 
-void packPayload(RHP_payloadStruct givenPayload);
+extern int RHPunpack(RHP_payloadStruct* recvPacket, uint8_t* udprecv);
 
+extern void RHPpack(RHP_payloadStruct* sendPacket, uint8_t* udpSend);
 
-/* function: internetChecksum_Check
- * 
- * arguments: RHP_payloadStruct givenPacket
- * 
- * This function performs an internet checksum on a
- * recieved packet. If the function returns 0, 
- * then the internet checksum passes.
-*/
-int internetChecksum_Check(RHP_payloadStruct givenPacket);
+extern void calcChecksum(const uint8_t* data, uint16_t dataLen, uint16_t* calcChecksum);
+
+#endif //PROJECT2_RHP_H
