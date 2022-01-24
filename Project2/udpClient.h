@@ -14,7 +14,7 @@
 
 #define BUFSIZE 1024
 
-extern int setupUDP(struct sockaddr_in client, struct sockaddr_in server, int* clientSock, char* serverAddr, int port);
+extern int setupUDP(struct sockaddr_in* server, int* clientSock, char* serverAddr, int port);
 
 extern int sendUDPmsg(int clientSock, struct sockaddr_in* pserver, char* sendMsg, char* recvMsg);
 
