@@ -1,11 +1,23 @@
-/************* UDP CLIENT CODE *******************/
+/*
+ * udpClient.cpp
+ * provides functionality for sending and recieving UDP messages
+ *
+ * setupUDP() - setups a udp connectiong by initializing the given values
+ *
+ * sendUDP() - sends and recieves a UDP message from the server
+ *
+ * NOTE: function descriptions in header file
+ *
+ * authors - Skyler Cleland, Justin Benson
+ * last revision: 2022-01-24
+ */
 
 #include <malloc.h>
 #include "udpClient.h"
 
 int setupUDP(struct sockaddr_in* server, int* clientSock, char* serverAddr, int port) {
 
-    struct sockaddr_in client;
+    struct sockaddr_in client;                  //used for getting client socket
 
     /*Create UDP socket*/
     if ((*clientSock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
