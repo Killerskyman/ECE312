@@ -114,7 +114,7 @@ int RHPpack(RHP_payloadStruct* sendPacket, uint8_t* udpSend) {
     //print raw for validation
     printf("RHP: udp data packed as: ");                
     for(int temp = 0; temp < msgLen; temp++){
-        printf("%x ", udpSendTemp[temp]);
+        printf("%x ", udpSend[temp]);
     }
     printf("\n");
 

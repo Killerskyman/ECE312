@@ -33,9 +33,9 @@ int RHMP_unpack(RHMP_payloadStruct* packetToRecv, uint8_t* rhpRecv) {
     printf("RHMP: Unpacking RHP message.\n");
 
     uint32_t rhmpHeader = rhpRecv[0]<<24 | rhpRecv[1] << 16 | rhpRecv[2] << 8 | rhpRecv[3];
-    packetToRecv->type = static_cast<RHMP_TYPE>((rhmpHeader>>28) & (0x0F));
-    packetToRecv->dstPort = (((rhmpHeader >> 20) & (0x0FF)) | ((rhmpHeader>>6) & (0x03F00)));
-    packetToRecv->srcPort = (((rhmpHeader & 0x03F) << 8) | ((rhmpHeader >> 6) & (0x0FF)));
+    packetToRecv->type = static_cast<RHMP_TYPE>((rhmpHeader>>24) & (0x0F));
+    packetToRecv->dstPort = (((rhmpHeader>>8) & 0x3) << 12) | (((rhmpHeader>>16) & 0xff) << 4) | ((rhmpHeader>>28) & 0xf);
+    packetToRecv->srcPort = (((rhmpHeader>>24) & 0xff) << 6) | ((rhmpHeader>>10) & 0x3f);
 
     switch(packetToRecv->type) {
         case MESSAGE_REQUEST:
@@ -74,23 +74,17 @@ int RHMP_unpack(RHMP_payloadStruct* packetToRecv, uint8_t* rhpRecv) {
 }
 
 int RHMP_pack(RHMP_payloadStruct* structToSend, uint8_t* rhpSend) {
-    uint32_t rhmpHeader = 0;
-    rhmpHeader |= (structToSend->type << 28);
-    rhmpHeader |= (structToSend->dstPort & 0x0FF) << 20;
-    rhmpHeader |= (structToSend->dstPort & 0x03F00) << 12;
-    rhmpHeader |= (structToSend->srcPort & 0xFF) << 6;
-    rhmpHeader |= (structToSend->srcPort & 0x3F00) >> 8;
-    
-    rhpSend[0] = (rhmpHeader>>24) & 0x0FF;
-    rhpSend[1] = (rhmpHeader>>16) & 0x0FF;
-    rhpSend[2] = (rhmpHeader>>8) & 0x0FF;
-    rhpSend[3] = (rhmpHeader) & 0xFF;
+
+    rhpSend[0] = (((structToSend->dstPort & 0xf) << 4) | (structToSend->type & 0xf));
+    rhpSend[1] = (structToSend->dstPort >> 4) & 0xff;
+    rhpSend[2] = (((structToSend->srcPort & 0x3f) << 2) | ((structToSend->dstPort >> 12) & 0x3)) & 0xff;
+    rhpSend[3] = (structToSend->srcPort >> 6) & 0xff;
 
     switch (structToSend->type) {
         case MESSAGE_REQUEST:
             return RHMPHEADERLEN;
         case ID_REQUEST:
-            return RHMPHEADERLEN + 4;
+            return RHMPHEADERLEN;
         case MESSAGE_RESPONSE:
             rhpSend[4] = structToSend->length;
             memcpy(&(rhpSend[5]), structToSend->payload, structToSend->length);

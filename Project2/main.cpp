@@ -15,7 +15,9 @@
 #include "RHP.h"
 #include "RHMP.h"
 
-#define SERVER "localhost"          //server to send the RHP message to
+//#define SERVER "137.112.38.54"          //multicore
+#define SERVER "137.112.41.87"          //server to send the RHP message to (434)
+//#define SERVER "137.112.239.255"      //localhost
 #define PORT 1874                       //port on server to send RHP message
 
 #define MSG1 "hello"                    //message 1
