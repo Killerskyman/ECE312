@@ -14,11 +14,16 @@
 #define PROJECT2_UDPCLIENT_H
 
 #include <cstdio>
+#include <cstring>
+#include <unistd.h>
+#if WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>      // From: https://linux.die.net/man/3/inet_addr
-#include <cstring>
-#include <unistd.h>
+#endif
 
 #define BUFSIZE 1024            //max buffer size for sending and recieving
 
@@ -32,7 +37,7 @@
  *
  * return - returns success, 0 or failure, not 0
  */
-extern int setupUDP(struct sockaddr_in* server, int* clientSock, char* serverAddr, int port);
+extern int setupUDP(struct sockaddr_in* server, SOCKET* clientSock, char* serverAddr, int port);
 
 /*
  * sendUDPmsg - it sends and then recieves a UDP message to the selected server and socket
@@ -45,13 +50,13 @@ extern int setupUDP(struct sockaddr_in* server, int* clientSock, char* serverAdd
  *
  * return - returns success, 0 or failure, not 0
  */
-extern int sendUDPmsg(int clientSock, struct sockaddr_in* pserver, char* sendMsg, int sendmsglen, char* recvMsg);
+extern int sendUDPmsg(SOCKET clientSock, struct sockaddr_in* pserver, char* sendMsg, int sendmsglen, char* recvMsg);
 
 /*
  * used to close the socket once UDP communication is done, useful when using the socket multiple times.
  *
  * clientSock - socket to close
  */
-extern void closeUDP(int clientSock);
+extern void closeUDP(SOCKET clientSock);
 
 #endif //PROJECT2_UDPCLIENT_H

@@ -29,7 +29,7 @@
  *
  * please call the setupUDP() function before calling this function as that provides the server and client socket
  */
-void sendRHPcont(char* msg, struct sockaddr_in* pserver, int clientsock){
+void sendRHPcont(char* msg, struct sockaddr_in* pserver, SOCKET clientsock){
     struct RHP_payloadStruct sendRHP, recvRHP;              //structs for the send/recv RHP messages
     uint8_t sendMsg[BUFSIZE], recvMsg[BUFSIZE];             //buffers for the send/recv UDP messages
 
@@ -57,7 +57,7 @@ void sendRHPcont(char* msg, struct sockaddr_in* pserver, int clientsock){
  */
 int main(){
     struct sockaddr_in serverAddr;                                                      //struct for storing the server
-    int clientSock;                                                                     //stores the client socket
+    SOCKET clientSock;                                                                     //stores the client socket
     setupUDP(&serverAddr, &clientSock, SERVER, PORT);     //setup UDP connection
 
     sendRHPcont(MSG1, &serverAddr, clientSock);                 //send message 1

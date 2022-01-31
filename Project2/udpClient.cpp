@@ -15,12 +15,17 @@
 #include <malloc.h>
 #include "udpClient.h"
 
-int setupUDP(struct sockaddr_in* server, int* clientSock, char* serverAddr, int port) {
+int setupUDP(struct sockaddr_in* server, SOCKET* clientSock, char* serverAddr, int port) {
 
     struct sockaddr_in client;                  //used for getting client socket
 
+#if WIN32
+    WSADATA winData;
+    WSAStartup(MAKEWORD(2,2), &winData);
+#endif
+
     /*Create UDP socket*/
-    if ((*clientSock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+    if ((*clientSock = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_SOCKET) {
         perror("cannot create socket");
         return -1;
     }
@@ -51,22 +56,25 @@ int setupUDP(struct sockaddr_in* server, int* clientSock, char* serverAddr, int 
     return 0;
 }
 
-int sendUDPmsg(int clientSock, struct sockaddr_in* pserver, char* sendMsg, int sendmsglen, char* recvMsg) {
+int sendUDPmsg(SOCKET clientSock, struct sockaddr_in* pserver, char* sendMsg, int sendmsglen, char* recvMsg) {
 
     /* send a message to the server */
-    if (sendto(clientSock, sendMsg, sendmsglen, MSG_CONFIRM,(struct sockaddr *) pserver, sizeof(*pserver)) < 0) {
+    if (sendto(clientSock, sendMsg, sendmsglen, 0,(struct sockaddr *) pserver, sizeof(*pserver)) < 0) {
         perror("sendto failed");
         return -1;
     }
 
     /* Receive message from server */
-    recvfrom(clientSock, recvMsg, BUFSIZE, 0, NULL, NULL);
+    recvfrom(clientSock, recvMsg, BUFSIZE, 0, nullptr, nullptr);
 
     printf("Received from server\n");
 
     return 0;
 }
 
-void closeUDP(int clientSock){
-    close(clientSock);
+void closeUDP(SOCKET clientSock){
+    closesocket(clientSock);
+#if WIN32
+    WSACleanup();
+#endif
 }

@@ -17,6 +17,7 @@
 #ifndef PROJECT2_RHP_H
 #define PROJECT2_RHP_H
 
+#include <cstdio>
 #include <cstdint>
 #include <cstring>
 #include <malloc.h>
