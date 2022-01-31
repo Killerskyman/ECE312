@@ -18,18 +18,18 @@
 
 #include "RHP.h"
 
-void RHPstructFill(RHP_payloadStruct* rhpmsg, char* msg){
-    rhpmsg->type = COMMAND;                                             //assumes control message
+void RHPstructFill(RHP_TYPE rhpType, RHP_payloadStruct* rhpmsg, char* msg, int msglen){
+    rhpmsg->type = rhpType;                                             //assumes control message
     rhpmsg->commID = RHP_COMMID;                                        //default commID
 
     // Set payload length to length of the input string plus 1 for the EOL character
-    rhpmsg->length = strlen(msg)+1; 
+    rhpmsg->length = msglen;
 
     // Allocate space for the payload
-    rhpmsg->payload = static_cast<char *>(malloc(sizeof(msg)));     
+    rhpmsg->payload = static_cast<char *>(malloc(msglen));
 
     // Copy message plus EOL into the payload
-    memcpy(rhpmsg->payload, msg, strlen(msg)+1);        
+    memcpy(rhpmsg->payload, msg, msglen);
     rhpmsg->checkSum = 0;                               //checksum is figured out later, set to zero for now
     printf("RHP: structure filled\n");
 }

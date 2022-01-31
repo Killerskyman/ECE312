@@ -25,7 +25,7 @@
 #define RHP_COMMID 0x312    //general commID used for default messages
 #define RHP_HEADERLEN 7 //1 for type, 2 for commID, 2 for length, 2 for checksum
 
-enum RHP_TYPE{RESERVED = 0, COMMAND = 1, RHMP = 2};     //defines the different available types for the RHP protocol
+enum RHP_TYPE{RHP_RESERVED = 0, COMMAND = 1, RHMP = 2};     //defines the different available types for the RHP protocol
 
 //struct used to store the different variables needed for the RHP protocol
 struct RHP_payloadStruct {
@@ -42,7 +42,7 @@ struct RHP_payloadStruct {
  * rhpmsg - the struct to init
  * msg - the payload to load in
  */
-extern void RHPstructFill(RHP_payloadStruct* rhpmsg, char* msg);
+extern void RHPstructFill(RHP_TYPE rhpType, RHP_payloadStruct* rhpmsg, char* msg, int msglen);
 
 /*
  * unpacks a byte array into the RHP struct

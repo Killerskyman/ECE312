@@ -9,17 +9,25 @@
 #include <cstring>
 #include <malloc.h>
 
-enum RHMP_TYPE{RESERVED = 0, MESSAGE_REQUEST = 1, MESSAGE_RESPONSE = 2,
-                ID_REQUEST = 3, ID_RESPONSE = 4}; 
+#define DESTPORT 122                    //RHMP destination port
+#define SRCPORT 2284                    //RHMP source port
+#define DEVICE_UID 4444
 
-//!!!!! How do we determine the source and destination port? Don't those come from the level below us?
+enum RHMP_TYPE{
+    RHMP_RESERVED = 0,
+    MESSAGE_REQUEST = 1,
+    MESSAGE_RESPONSE = 2,
+    ID_REQUEST = 3,
+    ID_RESPONSE = 4
+};
 
 struct RHMP_payloadStruct {
     RHMP_TYPE type;   //4-bit-wide field
-    int dstPort;
-    int srcPort;
-    uint8_t* length;
-    uint8_t * payload;
+    uint16_t dstPort;
+    uint16_t srcPort;
+    uint8_t length;
+    uint8_t* payload;
+    uint32_t uid;
 };
 
 /*
@@ -28,7 +36,7 @@ struct RHMP_payloadStruct {
  * rhmpMsg - the struct to init
  * msg - the payload to load in
  */
-extern void RHMP_messageFill(RHMP_payloadStruct* rhmpMsg, char* msg);
+extern void RHMP_messageFill(RHMP_TYPE msgType, RHMP_payloadStruct* rhmpMsg, char* msg);
 
 
 /*
