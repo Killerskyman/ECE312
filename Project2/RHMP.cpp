@@ -2,6 +2,7 @@
 // Created by skillet on 21/01/2022.
 //
 
+#include <cstdio>
 #include "RHMP.h"
 
 #define RHMP_HEADERLEN 3
