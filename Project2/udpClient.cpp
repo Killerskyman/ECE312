@@ -73,8 +73,9 @@ int sendUDPmsg(SOCKET clientSock, struct sockaddr_in* pserver, char* sendMsg, in
 }
 
 void closeUDP(SOCKET clientSock){
-    closesocket(clientSock);
+    close(clientSock);
 #if WIN32
+    closesocket(clientSock);
     WSACleanup();
 #endif
 }

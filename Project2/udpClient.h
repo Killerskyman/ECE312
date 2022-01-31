@@ -23,6 +23,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>      // From: https://linux.die.net/man/3/inet_addr
+#define SOCKET int
+#define INVALID_SOCKET (~0)
 #endif
 
 #define BUFSIZE 1024            //max buffer size for sending and recieving
