@@ -34,14 +34,13 @@ int RHMP_unpack(RHMP_payloadStruct* packetToRecv, uint8_t* rhpRecv) {
 
     // Unpack entire header
     uint32_t rhmpHeader = rhpRecv[0]<<24 | rhpRecv[1] << 16 | rhpRecv[2] << 8 | rhpRecv[3];
-
+  
     // Shift bits back and mask to set value of type
-    packetToRecv->type = static_cast<RHMP_TYPE>((rhmpHeader>>28) & (0x0F));
-
     // Shift bits back and mask to set values of dstPort and srcPort
-    packetToRecv->dstPort = (((rhmpHeader >> 20) & (0x0FF)) | ((rhmpHeader>>6) & (0x03F00)));
-    packetToRecv->srcPort = (((rhmpHeader & 0x03F) << 8) | ((rhmpHeader >> 6) & (0x0FF)));
-
+    packetToRecv->type = static_cast<RHMP_TYPE>((rhmpHeader>>24) & (0x0F));
+    packetToRecv->dstPort = (((rhmpHeader>>8) & 0x3) << 12) | (((rhmpHeader>>16) & 0xff) << 4) | ((rhmpHeader>>28) & 0xf);
+    packetToRecv->srcPort = (((rhmpHeader>>24) & 0xff) << 6) | ((rhmpHeader>>10) & 0x3f);
+  
     // Since each packet has a different type, the prorgam must handle the 
     // cases for each message type differently
     switch(packetToRecv->type) {
@@ -96,22 +95,17 @@ int RHMP_unpack(RHMP_payloadStruct* packetToRecv, uint8_t* rhpRecv) {
 }
 
 int RHMP_pack(RHMP_payloadStruct* structToSend, uint8_t* rhpSend) {
-    uint32_t rhmpHeader = 0;
 
     // Shift bits over and apply masks to properly pack 
     //  the type, dstPort, and srcPort into the header
-    rhmpHeader |= (structToSend->type << 28);
-    rhmpHeader |= (structToSend->dstPort & 0x0FF) << 20;
-    rhmpHeader |= (structToSend->dstPort & 0x03F00) << 12;
-    rhmpHeader |= (structToSend->srcPort & 0xFF) << 6;
-    rhmpHeader |= (structToSend->srcPort & 0x3F00) >> 8;
     
     // Pack each value of the header into its respective place in 
     //  the byte sequence.
-    rhpSend[0] = (rhmpHeader>>24) & 0x0FF;
-    rhpSend[1] = (rhmpHeader>>16) & 0x0FF;
-    rhpSend[2] = (rhmpHeader>>8) & 0x0FF;
-    rhpSend[3] = (rhmpHeader) & 0xFF;
+
+    rhpSend[0] = (((structToSend->dstPort & 0xf) << 4) | (structToSend->type & 0xf));
+    rhpSend[1] = (structToSend->dstPort >> 4) & 0xff;
+    rhpSend[2] = (((structToSend->srcPort & 0x3f) << 2) | ((structToSend->dstPort >> 12) & 0x3)) & 0xff;
+    rhpSend[3] = (structToSend->srcPort >> 6) & 0xff;
 
     // Determine how to handle the payload for each of the given types. 
     switch (structToSend->type) {
@@ -120,14 +114,9 @@ int RHMP_pack(RHMP_payloadStruct* structToSend, uint8_t* rhpSend) {
         //  going to be the header 
         case MESSAGE_REQUEST:
             return RHMPHEADERLEN;
-
         // ID_REQUEST: No Payload
         case ID_REQUEST:
-            return RHMPHEADERLEN + 4;
-
-        // MESSAGE_RESPONSE: Variable Payload. Load the value of the length 
-        //  and then use that value to allocate memory for the payload. 
-        //  Then load the payload. 
+            return RHMPHEADERLEN;
         case MESSAGE_RESPONSE:
             rhpSend[4] = structToSend->length;
             memcpy(&(rhpSend[5]), structToSend->payload, structToSend->length);
