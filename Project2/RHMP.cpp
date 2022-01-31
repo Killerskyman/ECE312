@@ -10,14 +10,14 @@
 extern void RHMP_messageFill(RHMP_payloadStruct* rhmpMsg, char* msg) {
     if(rhmpMsg->type != MESSAGE_RESPONSE) {
         //throw error
-        printf("RHMP: ERROR: Attempting to attach payload to non-message type.\n")
+        printf("RHMP: ERROR: Attempting to attach payload to non-message type.\n");
     }
 
     // Set payload length to length of the input string plus 1 for the EOL character
-    rhmpMsg->length = static_cast<uint8_t>(strlen(msg)+1); 
-
-    // Allocate space for the payload
-    rhmpMsg->payload = static_cast<char *>(malloc(sizeof(msg));
+//    rhmpMsg->length = strlen(msg)+1;
+//
+//    // Allocate space for the payload
+//    rhmpMsg->payload = static_cast<char *>(malloc(sizeof(msg));
 
     // Copy message plus EOL into the payload
     memcpy(rhmpMsg->payload, msg, strlen(msg)+1);
